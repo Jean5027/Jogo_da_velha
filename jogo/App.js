@@ -33,6 +33,45 @@ export default function App() {
         return getTelaGanhador();
     }
 
+    function jogar(linha,coluna){
+      tabuleiro[linha][coluna] = jogadorAtual;
+      setGanhador([...tabuleiro]);
+
+      setJogadorAtual(jogadorAtual === 'X' ? 'O' : 'X');
+
+
+      verificarGanhador(tabuleiro,linha,coluna);
+    }
+
+    function verificarGanhador(tabuleiro,linha,coluna){
+      if(tabuleiro[linha][0] !== '' && tabuleiro[linha][0] === tabuleiro[linha][1] && tabuleiro[linha][1] === tabuleiro[linha][2]){
+        return finalizarJogo(tabuleiro[linha][0]);
+      }
+
+      if(tabuleiro[0][coluna] !== '' && tabuleiro[0][coluna] === tabuleiro[1][coluna] && tabuleiro[1][coluna] === tabuleiro[2][coluna]){
+        return finalizarJogo(tabuleiro[coluna][0]);
+      }
+
+      if(tabuleiro[0][0] !== '' && tabuleiro[0][0] === tabuleiro[1][1] && tabuleiro[1][1] === tabuleiro[2][2]){
+        return finalizarJogo(tabuleiro[0][0]);
+      }
+
+      if(tabuleiro[0][2] !== '' && tabuleiro[0][2] === tabuleiro[1][1] && tabuleiro[1][1] === tabuleiro[2][0]){
+        return finalizarJogo(tabuleiro[0][2]);
+      }
+
+      if(jogadasRestante - 1 === 0){
+        return finalizarJogo('')
+      }
+
+      setJogadasrestante((jogadasRestante - 1));
+    }
+
+    function finalizarJogo(jogador){
+      setGanhador(jogador);
+      setTela('ganhador');
+    }
+
     function getTelaMenu(){
       return (
         <View style={styles.container}>
@@ -78,20 +117,31 @@ export default function App() {
                     linha.map((coluna,numeroColuna) => {
                       return (
                         <TouchableOpacity  
+                        key={numeroColuna}
                         style={styles.boxJogador}
-                        onPress={() => iniciarJogo('X')}>
-                        <Text style={styles.JogadorX}>X</Text>
+                        onPress={() => jogar(numeroLinha,numeroColuna)}
+                        disabled={coluna !== ''}>
+                        <Text style={coluna === 'X' ? styles.JogadorX : styles.JogadorO}>{coluna}</Text>
                         </TouchableOpacity>
 
                       )
                     })
                   }
 
+                  
+
                 </View>
               )
             })
 
           }
+
+                  <TouchableOpacity
+                    style={styles.botaoMenu}
+                    onPress={() => setTela('menu')}>
+                    <Text style={styles.textoBotaoMenu}>Voltar ao menu</Text>
+                  </TouchableOpacity>
+                  
         </View>
       );
 
@@ -100,10 +150,36 @@ export default function App() {
     function getTelaGanhador(){
       return (
         <View style={styles.container}>
-          <StatusBar style='auto'/>
-          <Text>Ganhador</Text>
+        <StatusBar style='auto'/>
+        <Text style={styles.Title}>Jogo da velha</Text>
+        <Text style={styles.subtitulo}>resultado final</Text>
+
+        {
+          ganhador === '' &&
+          <Text style={styles.ganhador}>Nenhum ganhador</Text>
+        }
+        {
+          ganhador !== '' &&
+          <>
+          <Text style={styles.ganhador}>Ganhador</Text>
+          <View  
+            style={styles.boxJogador}>
+            <Text style={ganhador === 'X' ? styles.JogadorX : styles.JogadorO}>{ganhador}</Text>
+          </View>
+          </>
+        }
+
+                  <TouchableOpacity
+                    style={styles.botaoMenu}
+                    onPress={() => setTela('menu')}>
+                    <Text style={styles.textoBotaoMenu}>Voltar ao menu</Text>
+                  </TouchableOpacity>
+
+
+
         </View>
-      );
+
+      )
 
     }
 
@@ -148,6 +224,19 @@ const styles = StyleSheet.create({
   },
   inlineItens: {
     flexDirection: 'row',
+
+  },
+  botaoMenu: {
+    marginTop: 20,
+
+  },
+  textoBotaoMenu: {
+    color: '#4e6fe4'
+  },
+  ganhador: {
+    fontSize: 25,
+    fontWeight: 'bold',
+    color: '#333'
 
   }
 });
